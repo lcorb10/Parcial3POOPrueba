@@ -1,7 +1,6 @@
 package airport.service.validator.impl;
 
 import java.time.LocalDate;
-
 import airport.model.Passenger;
 import airport.service.validator.interfaces.ValidatorInterface;
 
@@ -9,7 +8,6 @@ public class PassengerValidator implements ValidatorInterface<Passenger> {
 
     @Override
     public void validate(Passenger passenger) {
-
         validateId(passenger.getId());
         validateString(passenger.getFirstname(), "firstname");
         validateString(passenger.getLastname(), "lastname");
@@ -21,7 +19,7 @@ public class PassengerValidator implements ValidatorInterface<Passenger> {
 
     // Validations
     private void validateId(long id) {
-        if (id <= 0 || String.valueOf(id).length() > 15)
+        if (id < 0 || String.valueOf(id).length() > 15)
             throw new IllegalArgumentException("Passenger id must be >= 0 and at most 15 digits");
     }
 

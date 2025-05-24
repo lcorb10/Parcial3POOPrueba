@@ -10,51 +10,34 @@ public class Passenger_Controller implements PassengerControllerInterface {
 
     private final PassengerService passengerService;
 
-    /** Se inyecta el servicio de PassengerService(Inyección de dependencias) **/
     public Passenger_Controller(PassengerService passengerService) {
-
         this.passengerService = passengerService;
     }
 
-    /** Permite delegar a la capa de servicios, para crear un nuevo pasajero **/
-    public void createPassenger(Passenger passenger) {
-
+    @Override
+    public Passenger createPassenger(Passenger passenger) {
         this.passengerService.createPassenger(passenger);
+        return passenger;
     }
 
-    /**
-     * Permite delegar a la capa de servicios, para obtener un pasajero por medio
-     * del
-     * ID
-     **/
+    @Override
     public Passenger getPassenger(long id) {
-
         return this.passengerService.getPassenger(id);
     }
 
-    /**
-     * Permite delegar a la capa de servicios, para obtener todos los pasajeros
-     * registrados
-     **/
+    @Override
     public List<Passenger> getAllPassengers() {
-        System.out.println("Controlador => getAllPassengers");
         return this.passengerService.getAllPassengers();
     }
 
-    /**
-     * Permite delegar a la capa de servicios, para actualizar la información un
-     * pasajero
-     **/
-    public void updatePassenger(Passenger passenger) {
-
+    @Override
+    public Passenger updatePassenger(Passenger passenger) {
         this.passengerService.updatePassenger(passenger);
+        return passenger;
     }
 
-    /**
-     * Permite delegar a la capa de servicios, para eliminar aún pasajero
-     **/
+    @Override
     public void removePassenger(long id) {
-
         this.passengerService.removePassenger(id);
     }
 }

@@ -10,49 +10,34 @@ public class Plane_Controller implements PlaneControllerInterface {
 
     private final PlaneService planeService;
 
-    /** Se inyecta el servicio de FlightService(Inyección de dependencias) **/
     public Plane_Controller(PlaneService planeService) {
         this.planeService = planeService;
     }
 
-    /** Permite delegar a la capa de servicios, para crear un avión **/
-    public void createPlane(String id, String brand, String model, int maxCapacity, String airline) {
-
+    @Override
+    public Plane createPlane(String id, String brand, String model, int maxCapacity, String airline) {
         this.planeService.createPlane(id, brand, model, maxCapacity, airline);
-    }
-
-    /**
-     * Permite delegar a la capa de servicios, para obtener un avión por medio del
-     * ID
-     **/
-    public Plane getPlane(String id) {
-
         return this.planeService.getPlane(id);
     }
 
-    /**
-     * Permite delegar a la capa de servicios, para obtener todos los aviones
-     * registrados
-     **/
-    public List<Plane> getAllPlanes() {
+    @Override
+    public Plane getPlane(String id) {
+        return this.planeService.getPlane(id);
+    }
 
+    @Override
+    public List<Plane> getAllPlanes() {
         return this.planeService.getAllPlanes();
     }
 
-    /**
-     * Permite delegar a la capa de servicios, para actualizar la información un
-     * avión
-     **/
-    public void updatePlane(Plane updated) {
-
+    @Override
+    public Plane updatePlane(Plane updated) {
         this.planeService.updatePlane(updated);
+        return updated;
     }
 
-    /**
-     * Permite delegar a la capa de servicios, para eliminar un avión
-     **/
+    @Override
     public void removePlane(String id) {
-
         this.planeService.removePlane(id);
     }
 }

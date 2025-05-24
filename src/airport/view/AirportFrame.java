@@ -46,6 +46,9 @@ import airport.view.PanelRound;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import airport.controller.Response;
+import airport.model.Passenger;
+import java.util.List;
 
 /**
  *
@@ -53,147 +56,97 @@ import javax.swing.JOptionPane;
  */
 public class AirportFrame extends javax.swing.JFrame {
 
-        /**
-         * Creates new form AirportFrame
-         */
-        private int x, y;
-        private final AirportController controller;
+    private int x, y;
+    private final AirportController controller;
 
-        public AirportFrame() {
-                // Inicializa la UI (Swing)
-                initComponents();
+    public AirportFrame(AirportController controller) {
+        this.controller = controller;
+        initComponents();
+        // ...todo lo demás igual, pero SIN crear controladores ni servicios aquí...
+        this.setBackground(new Color(0, 0, 0, 0));
+        this.setLocationRelativeTo(null);
+        this.generateMonths();
+        this.generateDays();
+        this.generateHours();
+        this.generateMinutes();
+        this.blockPanels();
+        this.cargarComboBoxPasajeros();
+        this.cargarComboBoxFlights();
+        this.cargarComboBoxPlanes();
+        cargarComboBoxLocations(ComboBoxLocation1);
+        cargarComboBoxLocations(ComboBoxLocation2);
+        cargarComboBoxLocations(ComboBoxLocation3);
+    }
 
-                /** Carga los datos de cada modelo desde los archivos(json) **/
-                List<Plane> planes = JsonLoader.loadPlanes("planes.json");
-                List<Location> locations = JsonLoader.loadLocations("locations.json");
-                List<Passenger> passengers = JsonLoader.loadPassengers("passengers.json");
-                List<Flight> flights = JsonLoader.loadFlights("flights.json", planes, locations);
-
-                /** Se inicializan los storages(implementación concretas) **/
-                StorageLocation locationStorage = new StorageLocationImpl(locations);
-                StorageFlight flightStorage = new StorageFlightImpl(flights);
-                StoragePlane planeStorage = new StoragePlaneImpl(planes);
-                StoragePassenger passengerStorage = new StoragePassengerImpl(passengers);
-
-                /** Se inicializan los validadores y se inyectan en los servicios **/
-                ValidatorInterface<Location> locationValidator = new LocationValidator();
-                ValidatorInterface<Flight> flightValidator = new FlightValidator();
-                ValidatorInterface<Plane> planeValidator = new PlaneValidator();
-                ValidatorInterface<Passenger> passengerValidator = new PassengerValidator();
-
-                /**
-                 * Se inicializan los servicios y se le inyectan los storages y los validadores
-                 **/
-                LocationService locationService = new LocationService(locationStorage, locationValidator);
-                FlightService flightService = new FlightService(flightStorage, flightValidator);
-                PlaneService planeService = new PlaneService(planeStorage, planeValidator);
-                PassengerService passengerService = new PassengerService(passengerStorage, passengerValidator);
-
-                /**
-                 * Se inicializan los controladores(usando las interfaces) y se le inyectan los
-                 * servicios
-                 **/
-                LocationControllerInterface locationController = new Location_Controller(locationService);
-                FlightControllerInterface flightController = new Flight_Controller(flightService);
-                PlaneControllerInterface planeController = new Plane_Controller(planeService);
-                PassengerControllerInterface passengerController = new Passenger_Controller(passengerService);
-
-                // Orquestador principal
-                this.controller = new AirportController(
-                                planeController,
-                                flightController,
-                                locationController,
-                                passengerController);
-
-                // Configuración de la UI
-                this.setBackground(new Color(0, 0, 0, 0));
-                this.setLocationRelativeTo(null);
-
-                this.generateMonths();
-                this.generateDays();
-                this.generateHours();
-                this.generateMinutes();
-                this.blockPanels();
-                this.cargarComboBoxPasajeros(); // Llenar el combo al iniciar
-                // En el constructor
-                this.cargarComboBoxFlights();
-                this.cargarComboBoxPlanes();
-                // En el constructor
-                cargarComboBoxLocations(ComboBoxLocation1);
-                cargarComboBoxLocations(ComboBoxLocation2);
-                cargarComboBoxLocations(ComboBoxLocation3);
+    // --- Nuevo método para llenar el ComboBox de pasajeros ---
+    private void cargarComboBoxPasajeros() {
+        userSelect.removeAllItems();
+        userSelect.addItem("Seleccione un pasajero");
+        Response<List<Passenger>> response = controller.getAllPassengers();
+        if (response != null && response.getStatus() == 200 && response.getData() != null) {
+            for (Passenger p : response.getData()) {
+                userSelect.addItem(String.valueOf(p.getId()));
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al cargar pasajeros: "
+                    + (response != null ? response.getMessage() : "Respuesta nula del controlador."));
         }
+    }
 
-        // --- Nuevo método para llenar el ComboBox de pasajeros ---
-        private void cargarComboBoxPasajeros() {
-                userSelect.removeAllItems();
-                userSelect.addItem("Seleccione un pasajero");
-                List<Passenger> pasajeros = controller.getAllPassengers();
-                for (Passenger p : pasajeros) {
-                        userSelect.addItem(String.valueOf(p.getId())); // O puedes mostrar más info: p.getId() + " - " +
-                                                                       // p.getFullname()
+    private void jTextField23ActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO add your handling code here:
+    }
 
-                }
+    private void blockPanels() {
+        // 9, 11
+        for (int i = 1; i < jTabbedPane1.getTabCount(); i++) {
+            if (i != 9 && i != 11) {
+                jTabbedPane1.setEnabledAt(i, false);
+            }
         }
+    }
 
-        private void jTextField23ActionPerformed(java.awt.event.ActionEvent evt) {
-                // TODO add your handling code here:
+    private void generateMonths() {
+        for (int i = 1; i < 13; i++) {
+            MONTH.addItem("" + i);
+            MONTH1.addItem("" + i);
+            MONTH5.addItem("" + i);
         }
+    }
 
-        private void blockPanels() {
-                // 9, 11
-                for (int i = 1; i < jTabbedPane1.getTabCount(); i++) {
-                        if (i != 9 && i != 11) {
-                                jTabbedPane1.setEnabledAt(i, false);
-                        }
-                }
+    private void generateDays() {
+        for (int i = 1; i < 32; i++) {
+            DAY.addItem("" + i);
+            DAY1.addItem("" + i);
+            DAY5.addItem("" + i);
         }
+    }
 
-        private void generateMonths() {
-                for (int i = 1; i < 13; i++) {
-                        MONTH.addItem("" + i);
-                        MONTH1.addItem("" + i);
-                        MONTH5.addItem("" + i);
-                }
+    private void generateHours() {
+        for (int i = 0; i < 24; i++) {
+            MONTH2.addItem("" + i);
+            MONTH3.addItem("" + i);
+            MONTH4.addItem("" + i);
+            ComboBoxHour.addItem("" + i);
         }
+    }
 
-        private void generateDays() {
-                for (int i = 1; i < 32; i++) {
-                        DAY.addItem("" + i);
-                        DAY1.addItem("" + i);
-                        DAY5.addItem("" + i);
-                }
+    private void generateMinutes() {
+        for (int i = 0; i < 60; i++) {
+            DAY2.addItem("" + i);
+            DAY3.addItem("" + i);
+            DAY4.addItem("" + i);
+            ComboBoxMinute.addItem("" + i);
         }
+    }
 
-        private void generateHours() {
-                for (int i = 0; i < 24; i++) {
-                        MONTH2.addItem("" + i);
-                        MONTH3.addItem("" + i);
-                        MONTH4.addItem("" + i);
-                        ComboBoxHour.addItem("" + i);
-                }
-        }
-
-        private void generateMinutes() {
-                for (int i = 0; i < 60; i++) {
-                        DAY2.addItem("" + i);
-                        DAY3.addItem("" + i);
-                        DAY4.addItem("" + i);
-                        ComboBoxMinute.addItem("" + i);
-                }
-        }
-
-        private void generateUser() {
-
-        }
-
-        /**
-         * This method is called from within the constructor to initialize the form.
-         * WARNING: Do NOT modify this code. The content of this method is always
-         * regenerated by the Form Editor.
-         */
-        @SuppressWarnings("unchecked")
-        // <editor-fold defaultstate="collapsed" desc="Generated
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated
         // Code">//GEN-BEGIN:initComponents
         private void initComponents() {
 
@@ -1917,430 +1870,546 @@ public class AirportFrame extends javax.swing.JFrame {
                 pack();
         }// </editor-fold>//GEN-END:initComponents
 
-        private void panelRound2MousePressed(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_panelRound2MousePressed
-                x = evt.getX();
-                y = evt.getY();
-        }// GEN-LAST:event_panelRound2MousePressed
+    private void panelRound2MousePressed(java.awt.event.MouseEvent evt) {
+        x = evt.getX();
+        y = evt.getY();
+    }
 
-        private void panelRound2MouseDragged(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_panelRound2MouseDragged
-                this.setLocation(this.getLocation().x + evt.getX() - x, this.getLocation().y + evt.getY() - y);
-        }// GEN-LAST:event_panelRound2MouseDragged
+    private void panelRound2MouseDragged(java.awt.event.MouseEvent evt) {
+        this.setLocation(this.getLocation().x + evt.getX() - x, this.getLocation().y + evt.getY() - y);
+    }
 
-        private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton7ActionPerformed
-                try {
-                        String flightId = ComboBoxID.getItemAt(ComboBoxID.getSelectedIndex());
-                        int hours = Integer.parseInt(ComboBoxHour.getItemAt(ComboBoxHour.getSelectedIndex()));
-                        int minutes = Integer.parseInt(ComboBoxMinute.getItemAt(ComboBoxMinute.getSelectedIndex()));
-                        controller.delayFlight(flightId, hours, minutes);
-                        JOptionPane.showMessageDialog(this, "Vuelo retrasado correctamente.");
-                } catch (Exception e) {
-                        JOptionPane.showMessageDialog(this, "Error al retrasar el vuelo: " + e.getMessage());
-                }
-        }// GEN-LAST:event_jButton7ActionPerformed
-
-        private void ShowAllLocationsRefreshBTNActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_ShowAllLocationsRefreshBTNActionPerformed
-                DefaultTableModel model = (DefaultTableModel) jTable5.getModel();
-                model.setRowCount(0);
-                for (Location location : controller.getAllLocations()) {
-                        model.addRow(new Object[] {
-                                        location.getAirportId(),
-                                        location.getAirportName(),
-                                        location.getAirportCity(),
-                                        location.getAirportCountry()
-                        });
-                }
-        }// GEN-LAST:event_ShowAllLocationsRefreshBTNActionPerformed
-
-        private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton5ActionPerformed
-                DefaultTableModel model = (DefaultTableModel) jTable4.getModel();
-                model.setRowCount(0);
-                for (Plane plane : controller.getAllPlanes()) {
-                        model.addRow(new Object[] {
-                                        plane.getId(),
-                                        plane.getBrand(),
-                                        plane.getModel(),
-                                        plane.getMaxCapacity(),
-                                        plane.getAirline(),
-                                        plane.getNumFlights()
-                        });
-                }
-        }// GEN-LAST:event_jButton5ActionPerformed
-
-        private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton4ActionPerformed
-                DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
-                model.setRowCount(0);
-                for (Flight flight : controller.getAllFlights()) {
-                        model.addRow(new Object[] {
-                                        flight.getId(),
-                                        flight.getDepartureLocation().getAirportId(),
-                                        flight.getArrivalLocation().getAirportId(),
-                                        (flight.getScaleLocation() == null ? "-"
-                                                        : flight.getScaleLocation().getAirportId()),
-                                        flight.getDepartureDate(),
-                                        flight.calculateArrivalDate(),
-                                        flight.getPlane().getId(),
-                                        flight.getNumPassengers()
-                        });
-                }
-        }// GEN-LAST:event_jButton4ActionPerformed
-
-        private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton3ActionPerformed
-                DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
-                model.setRowCount(0);
-                for (Passenger passenger : controller.getAllPassengers()) {
-                        model.addRow(new Object[] {
-                                        passenger.getId(),
-                                        passenger.getFullname(),
-                                        passenger.getBirthDate(),
-                                        passenger.calculateAge(),
-                                        passenger.generateFullPhone(),
-                                        passenger.getCountry(),
-                                        passenger.getNumFlights()
-                        });
-                }
-        }// GEN-LAST:event_jButton3ActionPerformed
-
-        private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton2ActionPerformed
-                try {
-                        long passengerId = Long.parseLong(userSelect.getItemAt(userSelect.getSelectedIndex()));
-                        List<Flight> flights = controller.getFlightsByPassenger(passengerId);
-                        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-                        model.setRowCount(0);
-                        for (Flight flight : flights) {
-                                model.addRow(new Object[] {
-                                                flight.getId(),
-                                                flight.getDepartureDate(),
-                                                flight.calculateArrivalDate()
-                                });
-                        }
-                } catch (Exception e) {
-                        JOptionPane.showMessageDialog(this, "Error al cargar vuelos: " + e.getMessage());
-                }
-        }// GEN-LAST:event_jButton2ActionPerformed
-
-        private void AddToFlightActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_AddToFlightActionPerformed
-                try {
-                        long passengerId = Long.parseLong(IDFlightAdd.getText());
-                        String flightId = ComboBoxFlight.getItemAt(ComboBoxFlight.getSelectedIndex());
-                        controller.addPassengerToFlight(passengerId, flightId);
-                        JOptionPane.showMessageDialog(this, "Pasajero agregado al vuelo correctamente.");
-                } catch (Exception e) {
-                        JOptionPane.showMessageDialog(this, "Error al agregar pasajero al vuelo: " + e.getMessage());
-                }
-        }// GEN-LAST:event_AddToFlightActionPerformed
-
-        private void UpdateInfoActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_UpdateInfoActionPerformed
-                try {
-                        long id = Long.parseLong(IDUpdatetxt.getText());
-                        String firstname = FirstNameUpdatetxt.getText();
-                        String lastname = LastNameUpdatetxt.getText();
-                        int year = Integer.parseInt(BirthDateUpdatetxt.getText());
-                        int month = Integer.parseInt(MONTH.getItemAt(MONTH5.getSelectedIndex()));
-                        int day = Integer.parseInt(DAY.getItemAt(DAY5.getSelectedIndex()));
-                        int phoneCode = Integer.parseInt(PhoneZoneUpdatetxt.getText());
-                        long phone = Long.parseLong(PhoneNumberUpdatetxt.getText());
-                        String country = CountryUpdatetxt.getText();
-                        controller.updatePassenger(id, firstname, lastname, year, month, day, phoneCode, phone,
-                                        country);
-                        JOptionPane.showMessageDialog(this, "Información actualizada correctamente.");
-                } catch (Exception e) {
-                        JOptionPane.showMessageDialog(this, "Error al actualizar información: " + e.getMessage());
-                }
-        }// GEN-LAST:event_UpdateInfoActionPerformed
-
-        private void CreateFlightActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_CreateFlightActionPerformed
-                try {
-                        String id = IDflight.getText();
-                        String planeId = ComboBoxPlane.getItemAt(ComboBoxPlane.getSelectedIndex());
-                        String departureLocationId = ComboBoxLocation1.getItemAt(ComboBoxLocation1.getSelectedIndex());
-                        String arrivalLocationId = ComboBoxLocation2.getItemAt(ComboBoxLocation2.getSelectedIndex());
-                        String scaleLocationId = ComboBoxLocation3.getItemAt(ComboBoxLocation3.getSelectedIndex());
-                        int year = Integer.parseInt(DepartureDatetxt.getText());
-                        int month = Integer.parseInt(MONTH1.getItemAt(MONTH1.getSelectedIndex()));
-                        int day = Integer.parseInt(DAY1.getItemAt(DAY1.getSelectedIndex()));
-                        int hour = Integer.parseInt(MONTH2.getItemAt(MONTH2.getSelectedIndex()));
-                        int minutes = Integer.parseInt(DAY2.getItemAt(DAY2.getSelectedIndex()));
-                        int hoursDurationsArrival = Integer.parseInt(MONTH3.getItemAt(MONTH3.getSelectedIndex()));
-                        int minutesDurationsArrival = Integer.parseInt(DAY3.getItemAt(DAY3.getSelectedIndex()));
-                        int hoursDurationsScale = Integer.parseInt(MONTH4.getItemAt(MONTH4.getSelectedIndex()));
-                        int minutesDurationsScale = Integer.parseInt(DAY4.getItemAt(DAY4.getSelectedIndex()));
-                        controller.createFlight(
-                                        id,
-                                        planeId,
-                                        departureLocationId,
-                                        arrivalLocationId,
-                                        scaleLocationId,
-                                        year,
-                                        month,
-                                        day,
-                                        hour,
-                                        minutes,
-                                        hoursDurationsArrival,
-                                        minutesDurationsArrival,
-                                        hoursDurationsScale,
-                                        minutesDurationsScale);
-                        ComboBoxFlight.addItem(id);
-
-                        cargarComboBoxFlights();
-                        JOptionPane.showMessageDialog(this, "Vuelo creado correctamente.");
-                } catch (Exception e) {
-                        JOptionPane.showMessageDialog(this, "Error al crear vuelo: " + e.getMessage());
-                }
-        }// GEN-LAST:event_CreateFlightActionPerformed
-
-        private void CreateLocationActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_CreateLocationActionPerformed
-                try {
-                        String id = AirportIDtxt.getText();
-                        String name = AirportNametxt.getText();
-                        String city = AirportCitytxt.getText();
-                        String country = AirportCountrytxt.getText();
-                        double latitude = Double.parseDouble(AirportLatitudetxt.getText());
-                        double longitude = Double.parseDouble(AirportLongitudetxt.getText());
-                        controller.createLocation(id, name, city, country, latitude, longitude);
-                        ComboBoxLocation1.addItem(id);
-                        ComboBoxLocation2.addItem(id);
-                        ComboBoxLocation3.addItem(id);
-                        cargarComboBoxLocations(ComboBoxLocation1);
-                        cargarComboBoxLocations(ComboBoxLocation2);
-                        cargarComboBoxLocations(ComboBoxLocation3);
-                        JOptionPane.showMessageDialog(this, "Ubicación creada correctamente.");
-                } catch (Exception e) {
-                        JOptionPane.showMessageDialog(this, "Error al crear ubicación: " + e.getMessage());
-                }
-        }// GEN-LAST:event_CreateLocationActionPerformed
-
-        private void CreateAirplaneActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_CreateAirplaneActionPerformed
-                try {
-                        String id = IDPlanetxt.getText();
-                        String brand = Brandtxt.getText();
-                        String model = Modeltxt.getText();
-                        int maxCapacity = Integer.parseInt(MaxCapacitytxt.getText());
-                        String airline = Airlinetxt.getText();
-                        controller.createPlane(id, brand, model, maxCapacity, airline);
-                        ComboBoxPlane.addItem(id);
-                        cargarComboBoxPlanes();
-                        JOptionPane.showMessageDialog(this, "Avión creado correctamente.");
-                } catch (Exception e) {
-                        JOptionPane.showMessageDialog(this, "Error al crear avión: " + e.getMessage());
-                }
-        }// GEN-LAST:event_CreateAirplaneActionPerformed
-
-        private void RegisterPassengerActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_RegisterPassengerActionPerformed
-                try {
-                        long id = Long.parseLong(IDPassengertxt.getText());
-                        String firstname = FirstNametxt.getText();
-                        String lastname = LastNametxt.getText();
-                        int year = Integer.parseInt(BirthDatetxt.getText());
-                        int month = Integer.parseInt(MONTH.getItemAt(MONTH.getSelectedIndex()));
-                        int day = Integer.parseInt(DAY.getItemAt(DAY.getSelectedIndex()));
-                        int phoneCode = Integer.parseInt(PhoneZonetxt.getText());
-                        long phone = Long.parseLong(PhoneNumbertxt.getText());
-                        String country = Countrytxt.getText();
-                        controller.registerPassenger(id, firstname, lastname, year, month, day, phoneCode, phone,
-                                        country);
-                        userSelect.addItem("" + id);
-                        cargarComboBoxPasajeros(); // Refresca el ComboBox
-                        JOptionPane.showMessageDialog(this, "Pasajero registrado correctamente.");
-
-                } catch (Exception e) {
-                        JOptionPane.showMessageDialog(this, "Error al registrar pasajero: " + e.getMessage());
-                }
-        }// GEN-LAST:event_RegisterPassengerActionPerformed
-
-        private void userSelectActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_userSelectActionPerformed
-                try {
-                        String id = userSelect.getSelectedItem().toString();
-                        if (!id.equals(userSelect.getItemAt(0))) {
-                                IDUpdatetxt.setText(id);
-                                IDFlightAdd.setText(id);
-                        } else {
-                                IDUpdatetxt.setText("");
-                                IDFlightAdd.setText("");
-                        }
-                } catch (Exception e) {
-                        // Manejo opcional
-                }
-        }// GEN-LAST:event_userSelectActionPerformed
-
-        private void administratorActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_administratorActionPerformed
-                if (user.isSelected()) {
-                        user.setSelected(false);
-                        userSelect.setSelectedIndex(0);
-
-                }
-                for (int i = 1; i < jTabbedPane1.getTabCount(); i++) {
-                        jTabbedPane1.setEnabledAt(i, true);
-                }
-                jTabbedPane1.setEnabledAt(5, false);
-                jTabbedPane1.setEnabledAt(6, false);
-        }// GEN-LAST:event_administratorActionPerformed
-
-        private void userActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_userActionPerformed
-                if (administrator.isSelected()) {
-                        administrator.setSelected(false);
-                }
-                for (int i = 1; i < jTabbedPane1.getTabCount(); i++) {
-
-                        jTabbedPane1.setEnabledAt(i, false);
-
-                }
-                jTabbedPane1.setEnabledAt(9, true);
-                jTabbedPane1.setEnabledAt(5, true);
-                jTabbedPane1.setEnabledAt(6, true);
-                jTabbedPane1.setEnabledAt(7, true);
-                jTabbedPane1.setEnabledAt(11, true);
-        }// GEN-LAST:event_userActionPerformed
-
-        private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton13ActionPerformed
-                System.exit(0);
-        }// GEN-LAST:event_jButton13ActionPerformed
-
-        private void cargarComboBoxFlights() {
-                ComboBoxFlight.removeAllItems();
-                ComboBoxFlight.addItem("Seleccione un vuelo");
-                List<Flight> flights = controller.getAllFlights(); // El controlador principal debe devolver todos los
-                                                                   // vuelos
-                for (Flight f : flights) {
-                        ComboBoxFlight.addItem(String.valueOf(f.getId())); // O más información: f.getId() + " - " +
-                                                                           // f.getOrigin() + " -> " +
-                                                                           // f.getDestination()
-                        ComboBoxID.addItem(String.valueOf(f.getId()));
-                }
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String flightId = ComboBoxID.getItemAt(ComboBoxID.getSelectedIndex());
+            int hours = Integer.parseInt(ComboBoxHour.getItemAt(ComboBoxHour.getSelectedIndex()));
+            int minutes = Integer.parseInt(ComboBoxMinute.getItemAt(ComboBoxMinute.getSelectedIndex()));
+            controller.delayFlight(flightId, hours, minutes);
+            JOptionPane.showMessageDialog(this, "Vuelo retrasado correctamente.");
+            limpiarCamposDelayFlight();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al retrasar el vuelo: " + e.getMessage());
         }
+    }
 
-        private void ComboBoxFlightActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_ComboBoxFlightActionPerformed
-                // TODO add your handling code here:
-                try {
-                        String id = ComboBoxFlight.getSelectedItem().toString();
-                        if (!id.equals(ComboBoxFlight.getItemAt(0))) {
-                                // Aquí colocas la lógica que quieras cuando se selecciona un vuelo válido
-                                // Por ejemplo:
-                                // IDUpdateFlightTxt.setText(id);
-                        } else {
-                                // Opcional: limpiar campos relacionados
-                                // IDUpdateFlightTxt.setText("");
-                        }
-                } catch (Exception e) {
-                        // Manejo opcional
-                }
-        }// GEN-LAST:event_ComboBoxFlightActionPerformed
+    private void ShowAllLocationsRefreshBTNActionPerformed(java.awt.event.ActionEvent evt) {
+        DefaultTableModel model = (DefaultTableModel) jTable5.getModel();
+        model.setRowCount(0);
 
-        private void cargarComboBoxPlanes() {
-                ComboBoxPlane.removeAllItems();
-                ComboBoxPlane.addItem("Seleccione un avión");
-                List<Plane> planes = controller.getAllPlanes(); // El controlador principal debe devolver todos los
-                                                                // aviones
-                for (Plane p : planes) {
-                        ComboBoxPlane.addItem(String.valueOf(p.getId())); // O más info: p.getId() + " - " +
-                                                                          // p.getModel()
-                }
-        }
-
-        private void ComboBoxPlaneActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_ComboBoxPlaneActionPerformed
-                // TODO add your handling code here:
-                try {
-                        String id = ComboBoxPlane.getSelectedItem().toString();
-                        if (!id.equals(ComboBoxPlane.getItemAt(0))) {
-                                // Aquí la lógica para cuando se selecciona un avión válido
-                                // Por ejemplo:
-                                // IDUpdatePlaneTxt.setText(id);
-                        } else {
-                                // Limpiar campos relacionados, si quieres
-                                // IDUpdatePlaneTxt.setText("");
-                        }
-                } catch (Exception e) {
-                        // Manejo opcional
-                }
-        }// GEN-LAST:event_ComboBoxPlaneActionPerformed
-
-        private void cargarComboBoxLocations(JComboBox comboBox) {
-                comboBox.removeAllItems();
-                comboBox.addItem("Seleccione una ubicación");
-                List<Location> locations = controller.getAllLocations(); // El controlador principal debe devolver todas
-                                                                         // las ubicaciones
-                for (Location l : locations) {
-                        // Puedes mostrar el id del aeropuerto o, si prefieres, el nombre:
-                        // l.getAirportId() + " - " + l.getCity()
-                        comboBox.addItem(l.getAirportId());
-                }
-        }
-
-        private void ComboBoxLocation1ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_ComboBoxLocation1ActionPerformed
-                // TODO add your handling code here:
-                try {
-                        String id = ComboBoxLocation1.getSelectedItem().toString();
-                        if (!id.equals(ComboBoxLocation1.getItemAt(0))) {
-                                // Lógica para cuando se selecciona una ubicación válida
-                                // Ejemplo: txtLocation1.setText(id);
-                        } else {
-                                // Limpia campos si quieres
-                                // txtLocation1.setText("");
-                        }
-                } catch (Exception e) {
-                        // Manejo opcional
-                }
-        }// GEN-LAST:event_ComboBoxLocation1ActionPerformed
-
-        private void ComboBoxLocation2ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_ComboBoxLocation2ActionPerformed
-                // TODO add your handling code here:
-                try {
-                        String id = ComboBoxLocation2.getSelectedItem().toString();
-                        if (!id.equals(ComboBoxLocation2.getItemAt(0))) {
-                                // Lógica para cuando se selecciona una ubicación válida
-                        } else {
-                                // Limpia campos si quieres
-                        }
-                } catch (Exception e) {
-                        // Manejo opcional
-                }
-        }// GEN-LAST:event_ComboBoxLocation2ActionPerformed
-
-        private void ComboBoxLocation3ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_ComboBoxLocation3ActionPerformed
-                // TODO add your handling code here:
-                try {
-                        String id = ComboBoxLocation3.getSelectedItem().toString();
-                        if (!id.equals(ComboBoxLocation3.getItemAt(0))) {
-                                // Lógica para cuando se selecciona una ubicación válida
-                        } else {
-                                // Limpia campos si quieres
-                        }
-                } catch (Exception e) {
-                        // Manejo opcional
-                }
-        }// GEN-LAST:event_ComboBoxLocation3ActionPerformed
-
-        private void ComboBoxIDActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_ComboBoxIDActionPerformed
-                // TODO add your handling code here:
-                try {
-                        String id = ComboBoxID.getSelectedItem().toString();
-                        if (!id.equals(ComboBoxID.getItemAt(0))) {
-                                // Lógica para cuando se selecciona una ubicación válida
-                        } else {
-                                // Limpia campos si quieres
-                        }
-                } catch (Exception e) {
-                        // Manejo opcional
-                }
-        }// GEN-LAST:event_ComboBoxIDActionPerformed
-
-        /**
-         * @param args the command line arguments
-         */
-        public static void main(String args[]) {
-                System.setProperty("flatlaf.useNativeLibrary", "false");
-
-                try {
-                        UIManager.setLookAndFeel(new FlatDarkLaf());
-                } catch (Exception ex) {
-                        System.err.println("Failed to initialize LaF");
-                }
-                /* Create and display the form */
-                java.awt.EventQueue.invokeLater(new Runnable() {
-                        public void run() {
-                                new AirportFrame().setVisible(true);
-                        }
+        Response<List<Location>> resp = controller.getAllLocations();
+        if (resp != null && resp.getStatus() == 200 && resp.getData() != null) {
+            for (Location location : resp.getData()) {
+                model.addRow(new Object[]{
+                    location.getAirportId(),
+                    location.getAirportName(),
+                    location.getAirportCity(),
+                    location.getAirportCountry()
                 });
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al obtener ubicaciones: "
+                    + (resp != null ? resp.getMessage() : "Respuesta nula del controlador."));
         }
+    }
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {
+        DefaultTableModel model = (DefaultTableModel) jTable4.getModel();
+        model.setRowCount(0);
+
+        Response<List<Plane>> resp = controller.getAllPlanes();
+        if (resp != null && resp.getStatus() == 200 && resp.getData() != null) {
+            for (Plane plane : resp.getData()) {
+                model.addRow(new Object[]{
+                    plane.getId(),
+                    plane.getBrand(),
+                    plane.getModel(),
+                    plane.getMaxCapacity(),
+                    plane.getAirline(),
+                    plane.getNumFlights()
+                });
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al obtener aviones: "
+                    + (resp != null ? resp.getMessage() : "Respuesta nula del controlador."));
+        }
+    }
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {
+        DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
+        model.setRowCount(0);
+
+        Response<List<Flight>> resp = controller.getAllFlights();
+        if (resp != null && resp.getStatus() == 200 && resp.getData() != null) {
+            for (Flight flight : resp.getData()) {
+                model.addRow(new Object[]{
+                    flight.getId(),
+                    flight.getDepartureLocation().getAirportId(),
+                    flight.getArrivalLocation().getAirportId(),
+                    (flight.getScaleLocation() == null ? "-" : flight.getScaleLocation().getAirportId()),
+                    flight.getDepartureDate(),
+                    flight.calculateArrivalDate(),
+                    flight.getPlane().getId(),
+                    flight.getNumPassengers()
+                });
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al obtener vuelos: "
+                    + (resp != null ? resp.getMessage() : "Respuesta nula del controlador."));
+        }
+    }
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
+        DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+        model.setRowCount(0);
+
+        Response<List<Passenger>> resp = controller.getAllPassengers();
+        if (resp != null && resp.getStatus() == 200 && resp.getData() != null) {
+            for (Passenger passenger : resp.getData()) {
+                model.addRow(new Object[]{
+                    passenger.getId(),
+                    passenger.getFullname(),
+                    passenger.getBirthDate(),
+                    passenger.calculateAge(),
+                    passenger.generateFullPhone(),
+                    passenger.getCountry(),
+                    passenger.getNumFlights()
+                });
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al obtener pasajeros: "
+                    + (resp != null ? resp.getMessage() : "Respuesta nula del controlador."));
+        }
+    }
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            long passengerId = Long.parseLong(userSelect.getItemAt(userSelect.getSelectedIndex()));
+            Response<List<Flight>> resp = controller.getFlightsByPassenger(passengerId);
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.setRowCount(0);
+            if (resp != null && resp.getStatus() == 200 && resp.getData() != null) {
+                for (Flight flight : resp.getData()) {
+                    model.addRow(new Object[]{
+                        flight.getId(),
+                        flight.getDepartureDate(),
+                        flight.calculateArrivalDate()
+                    });
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al obtener vuelos del pasajero: "
+                        + (resp != null ? resp.getMessage() : "Respuesta nula del controlador."));
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar vuelos: " + e.getMessage());
+        }
+    }
+
+    private void AddToFlightActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            long passengerId = Long.parseLong(IDFlightAdd.getText());
+            String flightId = ComboBoxFlight.getItemAt(ComboBoxFlight.getSelectedIndex());
+            controller.addPassengerToFlight(passengerId, flightId);
+            JOptionPane.showMessageDialog(this, "Pasajero agregado al vuelo correctamente.");
+            limpiarCamposAgregarPasajeroVuelo();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al agregar pasajero al vuelo: " + e.getMessage());
+        }
+    }
+
+    private void UpdateInfoActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            long id = Long.parseLong(IDUpdatetxt.getText());
+            String firstname = FirstNameUpdatetxt.getText();
+            String lastname = LastNameUpdatetxt.getText();
+            int year = Integer.parseInt(BirthDateUpdatetxt.getText());
+            int month = Integer.parseInt(MONTH.getItemAt(MONTH5.getSelectedIndex()));
+            int day = Integer.parseInt(DAY.getItemAt(DAY5.getSelectedIndex()));
+            int phoneCode = Integer.parseInt(PhoneZoneUpdatetxt.getText());
+            long phone = Long.parseLong(PhoneNumberUpdatetxt.getText());
+            String country = CountryUpdatetxt.getText();
+            controller.updatePassenger(id, firstname, lastname, year, month, day, phoneCode, phone, country);
+            JOptionPane.showMessageDialog(this, "Información actualizada correctamente.");
+            limpiarCamposUpdatePasajero();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al actualizar información: " + e.getMessage());
+        }
+    }
+
+    private void CreateFlightActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String id = IDflight.getText().trim();
+            String planeId = ComboBoxPlane.getItemAt(ComboBoxPlane.getSelectedIndex());
+            String departureLocationId = ComboBoxLocation1.getItemAt(ComboBoxLocation1.getSelectedIndex());
+            String arrivalLocationId = ComboBoxLocation2.getItemAt(ComboBoxLocation2.getSelectedIndex());
+            String scaleLocationId = ComboBoxLocation3.getItemAt(ComboBoxLocation3.getSelectedIndex());
+
+            if (scaleLocationId == null
+                    || scaleLocationId.isEmpty()
+                    || scaleLocationId.equals("-")
+                    || scaleLocationId.equals("Seleccione una ubicación")) {
+                scaleLocationId = null;
+            }
+
+            int year = parseComboValue(DepartureDatetxt.getText(), "Año");
+            int month = parseComboValue(MONTH1.getItemAt(MONTH1.getSelectedIndex()), "Mes");
+            int day = parseComboValue(DAY1.getItemAt(DAY1.getSelectedIndex()), "Día");
+            int hour = parseComboValue(MONTH2.getItemAt(MONTH2.getSelectedIndex()), "Hora");
+            int minutes = parseComboValue(DAY2.getItemAt(DAY2.getSelectedIndex()), "Minutos");
+            int hoursDurationsArrival = parseComboValue(MONTH3.getItemAt(MONTH3.getSelectedIndex()), "Horas de llegada");
+            int minutesDurationsArrival = parseComboValue(DAY3.getItemAt(DAY3.getSelectedIndex()), "Minutos de llegada");
+
+            int hoursDurationsScale = 0;
+            int minutesDurationsScale = 0;
+            if (scaleLocationId != null) {
+                String hoursScaleStr = MONTH4.getItemAt(MONTH4.getSelectedIndex());
+                String minutesScaleStr = DAY4.getItemAt(DAY4.getSelectedIndex());
+
+                if (!isNumeric(hoursScaleStr)) {
+                    JOptionPane.showMessageDialog(this, "Selecciona una hora válida para 'Horas de escala'.");
+                    return;
+                }
+                if (!isNumeric(minutesScaleStr)) {
+                    JOptionPane.showMessageDialog(this, "Selecciona un valor válido para 'Minutos de escala'.");
+                    return;
+                }
+                hoursDurationsScale = Integer.parseInt(hoursScaleStr);
+                minutesDurationsScale = Integer.parseInt(minutesScaleStr);
+            }
+
+            controller.createFlight(
+                    id, planeId, departureLocationId, arrivalLocationId, scaleLocationId,
+                    year, month, day, hour, minutes,
+                    hoursDurationsArrival, minutesDurationsArrival,
+                    hoursDurationsScale, minutesDurationsScale);
+
+            ComboBoxFlight.addItem(id);
+            cargarComboBoxFlights();
+            JOptionPane.showMessageDialog(this, "Vuelo creado correctamente.");
+            limpiarCamposRegistroVuelo();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al crear vuelo: " + e.getMessage());
+        }
+    }
+
+    private int parseComboValue(String value, String fieldName) throws NumberFormatException {
+        if (!isNumeric(value)) {
+            throw new NumberFormatException("El campo '" + fieldName + "' no contiene un número válido: '" + value + "'");
+        }
+        return Integer.parseInt(value);
+    }
+
+    private boolean isNumeric(String str) {
+        if (str == null || str.trim().isEmpty()) {
+            return false;
+        }
+        try {
+            Integer.parseInt(str.trim());
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private void CreateLocationActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String id = AirportIDtxt.getText();
+            String name = AirportNametxt.getText();
+            String city = AirportCitytxt.getText();
+            String country = AirportCountrytxt.getText();
+            double latitude = Double.parseDouble(AirportLatitudetxt.getText());
+            double longitude = Double.parseDouble(AirportLongitudetxt.getText());
+            controller.createLocation(id, name, city, country, latitude, longitude);
+            ComboBoxLocation1.addItem(id);
+            ComboBoxLocation2.addItem(id);
+            ComboBoxLocation3.addItem(id);
+            cargarComboBoxLocations(ComboBoxLocation1);
+            cargarComboBoxLocations(ComboBoxLocation2);
+            cargarComboBoxLocations(ComboBoxLocation3);
+            JOptionPane.showMessageDialog(this, "Ubicación creada correctamente.");
+            limpiarCamposRegistroUbicacion();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al crear ubicación: " + e.getMessage());
+        }
+    }
+
+    private void CreateAirplaneActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String id = IDPlanetxt.getText();
+            String brand = Brandtxt.getText();
+            String model = Modeltxt.getText();
+            int maxCapacity = Integer.parseInt(MaxCapacitytxt.getText());
+            String airline = Airlinetxt.getText();
+            controller.createPlane(id, brand, model, maxCapacity, airline);
+            ComboBoxPlane.addItem(id);
+            cargarComboBoxPlanes();
+            JOptionPane.showMessageDialog(this, "Avión creado correctamente.");
+            limpiarCamposRegistroAvion();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al crear avión: " + e.getMessage());
+        }
+    }
+
+    private void RegisterPassengerActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            long id = Long.parseLong(IDPassengertxt.getText());
+            String firstname = FirstNametxt.getText();
+            String lastname = LastNametxt.getText();
+            int year = Integer.parseInt(BirthDatetxt.getText());
+            int month = Integer.parseInt(MONTH.getItemAt(MONTH.getSelectedIndex()));
+            int day = Integer.parseInt(DAY.getItemAt(DAY.getSelectedIndex()));
+            int phoneCode = Integer.parseInt(PhoneZonetxt.getText());
+            long phone = Long.parseLong(PhoneNumbertxt.getText());
+            String country = Countrytxt.getText();
+            controller.registerPassenger(id, firstname, lastname, year, month, day, phoneCode, phone, country);
+            userSelect.addItem("" + id);
+            cargarComboBoxPasajeros();
+            JOptionPane.showMessageDialog(this, "Pasajero registrado correctamente.");
+            limpiarCamposRegistroPasajero();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al registrar pasajero: " + e.getMessage());
+        }
+    }
+
+    private void userSelectActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String id = userSelect.getSelectedItem().toString();
+            if (!id.equals(userSelect.getItemAt(0))) {
+                IDUpdatetxt.setText(id);
+                IDFlightAdd.setText(id);
+            } else {
+                IDUpdatetxt.setText("");
+                IDFlightAdd.setText("");
+            }
+        } catch (Exception e) {
+            // Manejo opcional
+        }
+    }
+
+    private void administratorActionPerformed(java.awt.event.ActionEvent evt) {
+        if (user.isSelected()) {
+            user.setSelected(false);
+            userSelect.setSelectedIndex(0);
+        }
+        for (int i = 1; i < jTabbedPane1.getTabCount(); i++) {
+            jTabbedPane1.setEnabledAt(i, true);
+        }
+        jTabbedPane1.setEnabledAt(5, false);
+        jTabbedPane1.setEnabledAt(6, false);
+    }
+
+    private void userActionPerformed(java.awt.event.ActionEvent evt) {
+        if (administrator.isSelected()) {
+            administrator.setSelected(false);
+        }
+        for (int i = 1; i < jTabbedPane1.getTabCount(); i++) {
+            jTabbedPane1.setEnabledAt(i, false);
+        }
+        jTabbedPane1.setEnabledAt(9, true);
+        jTabbedPane1.setEnabledAt(5, true);
+        jTabbedPane1.setEnabledAt(6, true);
+        jTabbedPane1.setEnabledAt(7, true);
+        jTabbedPane1.setEnabledAt(11, true);
+    }
+
+    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {
+        System.exit(0);
+    }
+
+    private void cargarComboBoxFlights() {
+        ComboBoxFlight.removeAllItems();
+        ComboBoxID.removeAllItems();
+        ComboBoxFlight.addItem("Seleccione un vuelo");
+
+        Response<List<Flight>> resp = controller.getAllFlights();
+        if (resp != null && resp.getStatus() == 200 && resp.getData() != null) {
+            for (Flight f : resp.getData()) {
+                ComboBoxFlight.addItem(String.valueOf(f.getId()));
+                ComboBoxID.addItem(String.valueOf(f.getId()));
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al cargar vuelos: "
+                    + (resp != null ? resp.getMessage() : "Respuesta nula del controlador."));
+        }
+    }
+
+    private void ComboBoxFlightActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String id = ComboBoxFlight.getSelectedItem().toString();
+            if (!id.equals(ComboBoxFlight.getItemAt(0))) {
+                // lógica de selección válida
+            } else {
+                // lógica de limpiar campos relacionados
+            }
+        } catch (Exception e) {
+            // Manejo opcional
+        }
+    }
+
+    private void cargarComboBoxPlanes() {
+        ComboBoxPlane.removeAllItems();
+        ComboBoxPlane.addItem("Seleccione un avión");
+
+        Response<List<Plane>> resp = controller.getAllPlanes();
+        if (resp != null && resp.getStatus() == 200 && resp.getData() != null) {
+            for (Plane p : resp.getData()) {
+                ComboBoxPlane.addItem(String.valueOf(p.getId()));
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al cargar aviones: "
+                    + (resp != null ? resp.getMessage() : "Respuesta nula del controlador."));
+        }
+    }
+
+    private void ComboBoxPlaneActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String id = ComboBoxPlane.getSelectedItem().toString();
+            if (!id.equals(ComboBoxPlane.getItemAt(0))) {
+                // lógica de selección válida
+            } else {
+                // lógica de limpiar campos relacionados
+            }
+        } catch (Exception e) {
+            // Manejo opcional
+        }
+    }
+
+    private void cargarComboBoxLocations(JComboBox comboBox) {
+        comboBox.removeAllItems();
+        comboBox.addItem("Seleccione una ubicación");
+
+        Response<List<Location>> resp = controller.getAllLocations();
+        if (resp != null && resp.getStatus() == 200 && resp.getData() != null) {
+            for (Location l : resp.getData()) {
+                comboBox.addItem(l.getAirportId());
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al cargar ubicaciones: "
+                    + (resp != null ? resp.getMessage() : "Respuesta nula del controlador."));
+        }
+    }
+
+    private void ComboBoxLocation1ActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String id = ComboBoxLocation1.getSelectedItem().toString();
+            if (!id.equals(ComboBoxLocation1.getItemAt(0))) {
+                // lógica selección válida
+            } else {
+                // lógica limpiar campos relacionados
+            }
+        } catch (Exception e) {
+            // Manejo opcional
+        }
+    }
+
+    private void ComboBoxLocation2ActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String id = ComboBoxLocation2.getSelectedItem().toString();
+            if (!id.equals(ComboBoxLocation2.getItemAt(0))) {
+                // lógica selección válida
+            } else {
+                // lógica limpiar campos relacionados
+            }
+        } catch (Exception e) {
+            // Manejo opcional
+        }
+    }
+
+    private void ComboBoxLocation3ActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String id = ComboBoxLocation3.getSelectedItem().toString();
+            if (!id.equals(ComboBoxLocation3.getItemAt(0))) {
+                // lógica selección válida
+            } else {
+                // lógica limpiar campos relacionados
+            }
+        } catch (Exception e) {
+            // Manejo opcional
+        }
+    }
+
+    private void ComboBoxIDActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String id = ComboBoxID.getSelectedItem().toString();
+            if (!id.equals(ComboBoxID.getItemAt(0))) {
+                // lógica selección válida
+            } else {
+                // lógica limpiar campos relacionados
+            }
+        } catch (Exception e) {
+            // Manejo opcional
+        }
+    }
+
+// ---------------------- MÉTODOS DE LIMPIEZA DE CAMPOS ----------------------
+    private void limpiarCamposRegistroPasajero() {
+        IDPassengertxt.setText("");
+        FirstNametxt.setText("");
+        LastNametxt.setText("");
+        BirthDatetxt.setText("");
+        PhoneZonetxt.setText("");
+        PhoneNumbertxt.setText("");
+        Countrytxt.setText("");
+        MONTH.setSelectedIndex(0);
+        DAY.setSelectedIndex(0);
+    }
+
+    private void limpiarCamposUpdatePasajero() {
+        IDUpdatetxt.setText("");
+        FirstNameUpdatetxt.setText("");
+        LastNameUpdatetxt.setText("");
+        BirthDateUpdatetxt.setText("");
+        PhoneZoneUpdatetxt.setText("");
+        PhoneNumberUpdatetxt.setText("");
+        CountryUpdatetxt.setText("");
+        MONTH5.setSelectedIndex(0);
+        DAY5.setSelectedIndex(0);
+    }
+
+    private void limpiarCamposRegistroAvion() {
+        IDPlanetxt.setText("");
+        Brandtxt.setText("");
+        Modeltxt.setText("");
+        MaxCapacitytxt.setText("");
+        Airlinetxt.setText("");
+    }
+
+    private void limpiarCamposRegistroUbicacion() {
+        AirportIDtxt.setText("");
+        AirportNametxt.setText("");
+        AirportCitytxt.setText("");
+        AirportCountrytxt.setText("");
+        AirportLatitudetxt.setText("");
+        AirportLongitudetxt.setText("");
+    }
+
+    private void limpiarCamposRegistroVuelo() {
+        IDflight.setText("");
+        DepartureDatetxt.setText("");
+        ComboBoxPlane.setSelectedIndex(0);
+        ComboBoxLocation1.setSelectedIndex(0);
+        ComboBoxLocation2.setSelectedIndex(0);
+        ComboBoxLocation3.setSelectedIndex(0);
+        MONTH1.setSelectedIndex(0);
+        DAY1.setSelectedIndex(0);
+        MONTH2.setSelectedIndex(0);
+        DAY2.setSelectedIndex(0);
+        MONTH3.setSelectedIndex(0);
+        DAY3.setSelectedIndex(0);
+        MONTH4.setSelectedIndex(0);
+        DAY4.setSelectedIndex(0);
+    }
+
+    private void limpiarCamposAgregarPasajeroVuelo() {
+        IDFlightAdd.setText("");
+        ComboBoxFlight.setSelectedIndex(0);
+    }
+
+    private void limpiarCamposDelayFlight() {
+        ComboBoxID.setSelectedIndex(0);
+        ComboBoxHour.setSelectedIndex(0);
+        ComboBoxMinute.setSelectedIndex(0);
+    }
+
 
         // Variables declaration - do not modify//GEN-BEGIN:variables
         private javax.swing.JButton AddToFlight;
