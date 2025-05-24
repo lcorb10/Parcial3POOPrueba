@@ -21,7 +21,7 @@ public class PassengerValidator implements ValidatorInterface<Passenger> {
 
     // Validations
     private void validateId(long id) {
-        if (id < 0 || String.valueOf(id).length() > 15)
+        if (id <= 0 || String.valueOf(id).length() > 15)
             throw new IllegalArgumentException("Passenger id must be >= 0 and at most 15 digits");
     }
 

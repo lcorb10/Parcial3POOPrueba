@@ -1,47 +1,59 @@
 package airport.controller;
 
 import airport.model.Passenger;
-import airport.storage.StoragePassenger;
+import airport.service.PassengerService;
 
 import java.util.List;
 
 public class Passenger_Controller {
-    private final StoragePassenger storage;
 
-    public Passenger_Controller(StoragePassenger storage) {
-        this.storage = storage;
+    private final PassengerService passengerService;
+
+    /** Se inyecta el servicio de PassengerService(Inyección de dependencias) **/
+    public Passenger_Controller(PassengerService passengerService) {
+
+        this.passengerService = passengerService;
     }
 
+    /** Permite delegar a la capa de servicios, para crear un nuevo pasajero **/
     public void createPassenger(Passenger passenger) {
-        if (storage.existsPassenger(passenger.getId())) {
-            throw new IllegalArgumentException("Ya existe un pasajero con ese ID.");
-        }
-        storage.addPassenger(passenger);
+
+        this.passengerService.createPassenger(passenger);
     }
 
+    /**
+     * Permite delegar a la capa de servicios, para obtener un pasajero por medio
+     * del
+     * ID
+     **/
     public Passenger getPassenger(long id) {
-        Passenger passenger = storage.getPassengerById(id);
-        if (passenger == null) {
-            throw new IllegalArgumentException("El pasajero con el ID especificado no existe.");
-        }
-        return passenger;
+
+        return this.passengerService.getPassenger(id);
     }
 
+    /**
+     * Permite delegar a la capa de servicios, para obtener todos los pasajeros
+     * registrados
+     **/
     public List<Passenger> getAllPassengers() {
-        return storage.getAllPassengers();
+        System.out.println("Controlador => getAllPassengers");
+        return this.passengerService.getAllPassengers();
     }
 
+    /**
+     * Permite delegar a la capa de servicios, para actualizar la información un
+     * pasajero
+     **/
     public void updatePassenger(Passenger passenger) {
-        if (!storage.existsPassenger(passenger.getId())) {
-            throw new IllegalArgumentException("El pasajero con el ID especificado no existe.");
-        }
-        storage.updatePassenger(passenger);
+
+        this.passengerService.updatePassenger(passenger);
     }
 
+    /**
+     * Permite delegar a la capa de servicios, para eliminar aún pasajero
+     **/
     public void removePassenger(long id) {
-        if (!storage.existsPassenger(id)) {
-            throw new IllegalArgumentException("El pasajero con el ID especificado no existe.");
-        }
-        storage.removePassenger(id);
+
+        this.passengerService.removePassenger(id);
     }
 }

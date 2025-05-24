@@ -15,15 +15,18 @@ import airport.model.Passenger;
 import airport.model.Plane;
 import airport.service.FlightService;
 import airport.service.LocationService;
+import airport.service.PassengerService;
 import airport.service.PlaneService;
 import airport.service.validator.impl.FlightValidator;
 import airport.service.validator.impl.LocationValidator;
+import airport.service.validator.impl.PassengerValidator;
 import airport.service.validator.impl.PlaneValidator;
 import airport.service.validator.interfaces.ValidatorInterface;
 import airport.storage.StorageFlight;
 import airport.storage.StorageFlightImpl;
 import airport.storage.StorageLocation;
 import airport.storage.StorageLocationImpl;
+import airport.storage.StoragePassenger;
 import airport.storage.StoragePassengerImpl;
 import airport.storage.StoragePlane;
 import airport.storage.StoragePlaneImpl;
@@ -62,16 +65,17 @@ public class AirportFrame extends javax.swing.JFrame {
                 List<Passenger> passengers = JsonLoader.loadPassengers("passengers.json");
                 List<Flight> flights = JsonLoader.loadFlights("flights.json", planes, locations);
 
-                /** Se Inicializan los storages(implementación concretas) **/
+                /** Se inicializan los storages(implementación concretas) **/
                 StorageLocation locationStorage = new StorageLocationImpl(locations);
                 StorageFlight flightStorage = new StorageFlightImpl(flights);
                 StoragePlane planeStorage = new StoragePlaneImpl(planes);
-                StoragePassengerImpl passengerStorage = new StoragePassengerImpl(passengers);
+                StoragePassenger passengerStorage = new StoragePassengerImpl(passengers);
 
                 /** Se inicializan los validadores y se inyectan en los servicios **/
                 ValidatorInterface<Location> locationValidator = new LocationValidator();
                 ValidatorInterface<Flight> flightValidator = new FlightValidator();
                 ValidatorInterface<Plane> planeValidator = new PlaneValidator();
+                ValidatorInterface<Passenger> passengerValidator = new PassengerValidator();
 
                 /**
                  * Se inicializan los servicios y se le inyectan los storages y los validadores
@@ -79,12 +83,13 @@ public class AirportFrame extends javax.swing.JFrame {
                 LocationService locationService = new LocationService(locationStorage, locationValidator);
                 FlightService flightService = new FlightService(flightStorage, flightValidator);
                 PlaneService planeService = new PlaneService(planeStorage, planeValidator);
+                PassengerService passengerService = new PassengerService(passengerStorage, passengerValidator);
 
-                /** Se Inicializan los controladores y se le inyectan los servicios **/
+                /** Se inicializan los controladores y se le inyectan los servicios **/
                 Location_Controller locationController = new Location_Controller(locationService);
                 Flight_Controller flightController = new Flight_Controller(flightService);
                 Plane_Controller planeController = new Plane_Controller(planeService);
-                Passenger_Controller passengerController = new Passenger_Controller(passengerStorage);
+                Passenger_Controller passengerController = new Passenger_Controller(passengerService);
 
                 // Orquestador principal
                 this.controller = new AirportController(
