@@ -3,8 +3,8 @@ package airport.service;
 import java.util.List;
 
 import airport.model.Plane;
-import airport.storage.StoragePlane;
 import airport.service.validator.interfaces.ValidatorInterface;
+import airport.storage.interfaces.StoragePlane;
 
 /** Servicio que gestiona operaciones y validaciones del modelo Plane. **/
 public class PlaneService {

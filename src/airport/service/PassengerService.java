@@ -3,8 +3,8 @@ package airport.service;
 import java.util.List;
 
 import airport.model.Passenger;
-import airport.storage.StoragePassenger;
 import airport.service.validator.interfaces.ValidatorInterface;
+import airport.storage.interfaces.StoragePassenger;
 
 /**
  * Servicio que gestiona operaciones y validaciones del modelo

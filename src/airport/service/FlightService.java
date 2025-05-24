@@ -4,7 +4,7 @@ import java.util.List;
 
 import airport.model.Flight;
 import airport.service.validator.interfaces.ValidatorInterface;
-import airport.storage.StorageFlight;
+import airport.storage.interfaces.StorageFlight;
 
 /** Servicio que gestiona operaciones y validaciones del modelo Flight. **/
 public class FlightService {

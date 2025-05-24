@@ -4,7 +4,7 @@ import java.util.List;
 
 import airport.model.Location;
 import airport.service.validator.interfaces.ValidatorInterface;
-import airport.storage.StorageLocation;
+import airport.storage.interfaces.StorageLocation;
 
 /** Servicio que gestiona operaciones y validaciones del modelo Location. **/
 public class LocationService {
