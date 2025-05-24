@@ -1,11 +1,12 @@
 package airport.controller;
 
+import airport.controller.interfaces.FlightControllerInterface;
 import airport.model.Flight;
 import airport.service.FlightService;
 
 import java.util.List;
 
-public class Flight_Controller {
+public class Flight_Controller implements FlightControllerInterface {
     private final FlightService flightService;
 
     /** Se inyecta el servicio de FlightService(Inyección de dependencias) **/

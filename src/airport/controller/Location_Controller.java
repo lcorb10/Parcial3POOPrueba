@@ -1,11 +1,13 @@
 package airport.controller;
 
+import airport.controller.interfaces.LocationControllerInterface;
 import airport.model.Location;
 import airport.service.LocationService;
 
 import java.util.List;
 
-public class Location_Controller {
+public class Location_Controller implements LocationControllerInterface {
+
     private final LocationService locationService;
 
     /** Se inyecta el servicio de LocationService(Inyección de dependencias) **/

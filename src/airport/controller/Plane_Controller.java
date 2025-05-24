@@ -2,10 +2,11 @@ package airport.controller;
 
 import airport.model.Plane;
 import airport.service.PlaneService;
+import airport.controller.interfaces.PlaneControllerInterface;
 
 import java.util.List;
 
-public class Plane_Controller {
+public class Plane_Controller implements PlaneControllerInterface {
 
     private final PlaneService planeService;
 

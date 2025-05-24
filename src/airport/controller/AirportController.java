@@ -1,5 +1,9 @@
 package airport.controller;
 
+import airport.controller.interfaces.FlightControllerInterface;
+import airport.controller.interfaces.LocationControllerInterface;
+import airport.controller.interfaces.PassengerControllerInterface;
+import airport.controller.interfaces.PlaneControllerInterface;
 import airport.model.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -7,17 +11,16 @@ import java.util.List;
 
 public class AirportController {
 
-    private final Plane_Controller planeController;
-    private final Flight_Controller flightController;
-    private final Location_Controller locationController;
-    private final Passenger_Controller passengerController;
+    private final PlaneControllerInterface planeController;
+    private final FlightControllerInterface flightController;
+    private final LocationControllerInterface locationController;
+    private final PassengerControllerInterface passengerController;
 
     public AirportController(
-            Plane_Controller planeController,
-            Flight_Controller flightController,
-            Location_Controller locationController,
-            Passenger_Controller passengerController
-    ) {
+            PlaneControllerInterface planeController,
+            FlightControllerInterface flightController,
+            LocationControllerInterface locationController,
+            PassengerControllerInterface passengerController) {
         this.planeController = planeController;
         this.flightController = flightController;
         this.locationController = locationController;
@@ -25,7 +28,8 @@ public class AirportController {
     }
 
     // --------- CREAR ENTIDADES ----------
-    public void registerPassenger(long id, String firstname, String lastname, int year, int month, int day, int phoneCode, long phone, String country) {
+    public void registerPassenger(long id, String firstname, String lastname, int year, int month, int day,
+            int phoneCode, long phone, String country) {
         LocalDate birthDate = LocalDate.of(year, month, day);
         Passenger passenger = new Passenger(id, firstname, lastname, birthDate, phoneCode, phone, country);
         passengerController.createPassenger(passenger);
@@ -53,20 +57,23 @@ public class AirportController {
             int hoursDurationsArrival,
             int minutesDurationsArrival,
             int hoursDurationsScale,
-            int minutesDurationsScale
-    ) {
+            int minutesDurationsScale) {
         Plane plane = planeController.getPlane(planeId);
         Location departure = locationController.getLocation(departureLocationId);
         Location arrival = locationController.getLocation(arrivalLocationId);
-        Location scale = (scaleLocationId != null && !scaleLocationId.isEmpty() && !scaleLocationId.equals("-")) ? locationController.getLocation(scaleLocationId) : null;
+        Location scale = (scaleLocationId != null && !scaleLocationId.isEmpty() && !scaleLocationId.equals("-"))
+                ? locationController.getLocation(scaleLocationId)
+                : null;
 
         LocalDateTime departureDate = LocalDateTime.of(year, month, day, hour, minutes);
 
         Flight flight;
         if (scale == null) {
-            flight = new Flight(id, plane, departure, arrival, departureDate, hoursDurationsArrival, minutesDurationsArrival);
+            flight = new Flight(id, plane, departure, arrival, departureDate, hoursDurationsArrival,
+                    minutesDurationsArrival);
         } else {
-            flight = new Flight(id, plane, departure, scale, arrival, departureDate, hoursDurationsArrival, minutesDurationsArrival, hoursDurationsScale, minutesDurationsScale);
+            flight = new Flight(id, plane, departure, scale, arrival, departureDate, hoursDurationsArrival,
+                    minutesDurationsArrival, hoursDurationsScale, minutesDurationsScale);
         }
         flightController.createFlight(flight);
     }
@@ -84,9 +91,9 @@ public class AirportController {
         return locationController.getAllLocations();
     }
 
-   public List<Flight> getAllFlights() {
-    return flightController.getAllFlights();
-}
+    public List<Flight> getAllFlights() {
+        return flightController.getAllFlights();
+    }
 
     // --------- MÉTODOS EXTRA DE USO FRECUENTE ----------
     public Passenger getPassenger(long id) {
@@ -106,7 +113,8 @@ public class AirportController {
     }
 
     // Ejemplo de método para actualizar pasajero (si lo necesitas en tu UI)
-    public void updatePassenger(long id, String firstname, String lastname, int year, int month, int day, int phoneCode, long phone, String country) {
+    public void updatePassenger(long id, String firstname, String lastname, int year, int month, int day, int phoneCode,
+            long phone, String country) {
         Passenger passenger = passengerController.getPassenger(id);
         passenger.setFirstname(firstname);
         passenger.setLastname(lastname);

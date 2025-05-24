@@ -9,6 +9,10 @@ import airport.controller.Flight_Controller;
 import airport.controller.Location_Controller;
 import airport.controller.Passenger_Controller;
 import airport.controller.Plane_Controller;
+import airport.controller.interfaces.FlightControllerInterface;
+import airport.controller.interfaces.LocationControllerInterface;
+import airport.controller.interfaces.PassengerControllerInterface;
+import airport.controller.interfaces.PlaneControllerInterface;
 import airport.model.Flight;
 import airport.model.Location;
 import airport.model.Passenger;
@@ -85,11 +89,14 @@ public class AirportFrame extends javax.swing.JFrame {
                 PlaneService planeService = new PlaneService(planeStorage, planeValidator);
                 PassengerService passengerService = new PassengerService(passengerStorage, passengerValidator);
 
-                /** Se inicializan los controladores y se le inyectan los servicios **/
-                Location_Controller locationController = new Location_Controller(locationService);
-                Flight_Controller flightController = new Flight_Controller(flightService);
-                Plane_Controller planeController = new Plane_Controller(planeService);
-                Passenger_Controller passengerController = new Passenger_Controller(passengerService);
+                /**
+                 * Se inicializan los controladores(usando las interfaces) y se le inyectan los
+                 * servicios
+                 **/
+                LocationControllerInterface locationController = new Location_Controller(locationService);
+                FlightControllerInterface flightController = new Flight_Controller(flightService);
+                PlaneControllerInterface planeController = new Plane_Controller(planeService);
+                PassengerControllerInterface passengerController = new Passenger_Controller(passengerService);
 
                 // Orquestador principal
                 this.controller = new AirportController(

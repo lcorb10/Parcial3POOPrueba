@@ -1,11 +1,12 @@
 package airport.controller;
 
+import airport.controller.interfaces.PassengerControllerInterface;
 import airport.model.Passenger;
 import airport.service.PassengerService;
 
 import java.util.List;
 
-public class Passenger_Controller {
+public class Passenger_Controller implements PassengerControllerInterface {
 
     private final PassengerService passengerService;
 
