@@ -1,47 +1,55 @@
 package airport.controller;
 
 import airport.model.Flight;
-import airport.storage.StorageFlight;
+import airport.service.FlightService;
 
 import java.util.List;
 
 public class Flight_Controller {
-    private final StorageFlight storage;
+    private final FlightService flightService;
 
-    public Flight_Controller(StorageFlight storage) {
-        this.storage = storage;
+    /** Se inyecta el servicio de FlightService(Inyección de dependencias) **/
+    public Flight_Controller(FlightService flightService) {
+
+        this.flightService = flightService;
     }
 
+    /** Permite delegar a la capa de servicios, para crear un vuelo **/
     public void createFlight(Flight flight) {
-        if (storage.existsFlight(flight.getId())) {
-            throw new IllegalArgumentException("Ya existe un vuelo con ese ID.");
-        }
-        storage.addFlight(flight);
+
+        this.flightService.createFlight(flight);
     }
 
+    /**
+     * Permite delegar a la capa de servicios, para obtener una vuelo por medio del
+     * ID
+     **/
     public Flight getFlight(String id) {
-        Flight flight = storage.getFlightById(id);
-        if (flight == null) {
-            throw new IllegalArgumentException("El vuelo con el ID especificado no existe.");
-        }
-        return flight;
+
+        return this.flightService.getFlight(id);
     }
 
+    /**
+     * Permite delegar a la capa de servicios, para obtener todos los vuelos
+     * registrados
+     **/
     public List<Flight> getAllFlights() {
-        return storage.getAllFlights();
+
+        return this.flightService.getAllFlights();
     }
 
+    /**
+     * Permite delegar a la capa de servicios, para actualizar la información un
+     * vuelo
+     **/
     public void updateFlight(Flight updated) {
-        if (!storage.existsFlight(updated.getId())) {
-            throw new IllegalArgumentException("El vuelo con el ID especificado no existe.");
-        }
-        storage.updateFlight(updated);
+
+        this.flightService.updateFlight(updated);
     }
 
+    /** Permite delegar a la capa de servicios, para eliminar un vuelo **/
     public void removeFlight(String id) {
-        if (!storage.existsFlight(id)) {
-            throw new IllegalArgumentException("El vuelo con el ID especificado no existe.");
-        }
-        storage.removeFlight(id);
+
+        this.flightService.removeFlight(id);
     }
 }

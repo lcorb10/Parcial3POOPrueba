@@ -3,6 +3,7 @@ package airport.service.validator.impl;
 import airport.model.Location;
 import airport.service.validator.interfaces.ValidatorInterface;
 
+/** Clase que permite validar los datos de entrada del modelo de Location **/
 public class LocationValidator implements ValidatorInterface<Location> {
 
     @Override
