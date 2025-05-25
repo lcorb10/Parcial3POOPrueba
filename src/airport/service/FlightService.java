@@ -15,6 +15,7 @@ public class FlightService {
     /**
      * Se usa la interfaces y no las impementaciones concretas DIP(Inversión de
      * dependencias)
+     * 
      * @param storage
      * @param validator
      **/
@@ -23,8 +24,11 @@ public class FlightService {
         this.validator = validator;
     }
 
-    /** Permite crear un nuevo vuelo, haciendo uso del repositorio
-     * @param flight **/
+    /**
+     * Permite crear un nuevo vuelo, haciendo uso del repositorio
+     * 
+     * @param flight
+     **/
     public void createFlight(Flight flight) {
 
         if (storage.existsFlight(flight.getId())) {
@@ -42,12 +46,13 @@ public class FlightService {
             throw new IllegalArgumentException("El ID no puede estar vació.");
         }
     }
-public Flight getFlight(String id) {
-    this.hasValidId(id);
-    return storage.getFlightById(id); // No lanzar excepción si no existe
-}
+
+    public Flight getFlight(String id) {
+        this.hasValidId(id);
+        return storage.getFlightById(id);
+    }
+
     /** Permite obtener un vuelo por medio del ID **/
- 
 
     /** Permite obtener todos los vuelos registrados **/
     public List<Flight> getAllFlights() {

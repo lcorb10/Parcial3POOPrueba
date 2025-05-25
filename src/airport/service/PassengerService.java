@@ -16,7 +16,8 @@ public class PassengerService {
     private final ValidatorInterface<Passenger> validator;
 
     /**
-     * Se usan las interfaces y no las implementaciones concretas DIP (Inversión de dependencias)
+     * Se usan las interfaces y no las implementaciones concretas DIP (Inversión de
+     * dependencias)
      **/
     public PassengerService(StoragePassenger storage, ValidatorInterface<Passenger> validator) {
         this.storage = storage;
@@ -31,17 +32,14 @@ public class PassengerService {
 
     /** Permite crear un nuevo pasajero, haciendo uso del repositorio **/
     public void createPassenger(Passenger passenger) {
-        System.out.println("Servicio => createPassenger");
+
         if (this.storage.existsPassenger(passenger.getId())) {
             throw new IllegalArgumentException("Ya existe un pasajero con ese ID.");
         }
         /** Se valida la información, antes de insertarla **/
-        System.out.println("Servicio => Validador");
         this.validator.validate(passenger);
 
-        System.out.println("Servicio => Registro");
         this.storage.addPassenger(passenger);
-        System.out.println("Servicio => Fin");
     }
 
     /** Permite obtener un pasajero por medio del ID **/

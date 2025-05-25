@@ -17,6 +17,7 @@ import airport.model.Flight;
 import airport.model.Location;
 import airport.model.Passenger;
 import airport.model.Plane;
+import airport.service.AirportService;
 import airport.service.FlightService;
 import airport.service.LocationService;
 import airport.service.PassengerService;
@@ -42,6 +43,7 @@ import javax.swing.UIManager;
 
 public class Main {
     public static void main(String[] args) {
+
         System.setProperty("flatlaf.useNativeLibrary", "false");
         try {
             UIManager.setLookAndFeel(new FlatDarkLaf());
@@ -79,12 +81,14 @@ public class Main {
         PlaneControllerInterface planeController = new Plane_Controller(planeService);
         PassengerControllerInterface passengerController = new Passenger_Controller(passengerService);
 
-        AirportController controller = new AirportController(
-            planeController,
-            flightController,
-            locationController,
-            passengerController
-        );
+        /** Se inyectan los controladores al servicio orquestadors **/
+        AirportService airportService = new AirportService(planeController,
+                flightController,
+                locationController,
+                passengerController);
+
+        /** Se inyecta el servicio al controlador principal **/
+        AirportController controller = new AirportController(airportService);
 
         java.awt.EventQueue.invokeLater(() -> {
             new AirportFrame(controller).setVisible(true);

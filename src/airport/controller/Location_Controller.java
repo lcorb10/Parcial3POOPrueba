@@ -10,12 +10,14 @@ public class Location_Controller implements LocationControllerInterface {
 
     private final LocationService locationService;
 
+    /** Se inyecta el servicio de LocationService **/
     public Location_Controller(LocationService locationService) {
         this.locationService = locationService;
     }
 
     @Override
-    public Location createLocation(String id, String name, String city, String country, double latitude, double longitude) {
+    public Location createLocation(String id, String name, String city, String country, double latitude,
+            double longitude) {
         this.locationService.createLocation(id, name, city, country, latitude, longitude);
         // Se retorna la Location recién creada desde el servicio (por id)
         return this.locationService.getLocation(id);
