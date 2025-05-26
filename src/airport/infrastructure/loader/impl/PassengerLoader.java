@@ -11,7 +11,7 @@ import java.util.Map;
 import airport.infrastructure.loader.interfaces.DataLoaderInterface;
 import airport.model.Passenger;
 
-public class PassengerLoader implements DataLoaderInterface {
+public class PassengerLoader implements DataLoaderInterface<Passenger> {
 
     @Override
     public List<Passenger> load(String filePath) throws Exception {

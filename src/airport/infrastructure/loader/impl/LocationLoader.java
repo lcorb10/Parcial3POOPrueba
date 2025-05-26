@@ -10,7 +10,7 @@ import java.util.Map;
 import airport.infrastructure.loader.interfaces.DataLoaderInterface;
 import airport.model.Location;
 
-public class LocationLoader implements DataLoaderInterface {
+public class LocationLoader implements DataLoaderInterface<Location> {
 
     @Override
     public List<Location> load(String filePath) throws Exception {

@@ -14,6 +14,10 @@ import airport.controller.interfaces.LocationControllerInterface;
 import airport.controller.interfaces.PassengerControllerInterface;
 import airport.controller.interfaces.PlaneControllerInterface;
 import airport.infrastructure.loader.JsonLoader;
+import airport.infrastructure.loader.impl.FlightLoader;
+import airport.infrastructure.loader.impl.LocationLoader;
+import airport.infrastructure.loader.impl.PassengerLoader;
+import airport.infrastructure.loader.impl.PlaneLoader;
 import airport.infrastructure.storage.impl.StorageFlightImpl;
 import airport.infrastructure.storage.impl.StorageLocationImpl;
 import airport.infrastructure.storage.impl.StoragePassengerImpl;
@@ -52,10 +56,10 @@ public class Main {
         }
 
         // 1. Carga modelos
-        List<Plane> planes = JsonLoader.loadPlanes("planes.json");
-        List<Location> locations = JsonLoader.loadLocations("locations.json");
-        List<Passenger> passengers = JsonLoader.loadPassengers("passengers.json");
-        List<Flight> flights = JsonLoader.loadFlights("flights.json", planes, locations);
+        List<Plane> planes = JsonLoader.loadModel("planes.json", new PlaneLoader());
+        List<Location> locations = JsonLoader.loadModel("locations.json", new LocationLoader());
+        List<Passenger> passengers = JsonLoader.loadModel("passengers.json", new PassengerLoader());
+        List<Flight> flights = JsonLoader.loadModel("flights.json", new FlightLoader(planes, locations));
 
         // 2. Storages
         StorageLocation locationStorage = new StorageLocationImpl(locations);

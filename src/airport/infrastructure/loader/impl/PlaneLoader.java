@@ -10,7 +10,7 @@ import java.util.Map;
 import airport.infrastructure.loader.interfaces.DataLoaderInterface;
 import airport.model.Plane;
 
-public class PlaneLoader implements DataLoaderInterface {
+public class PlaneLoader implements DataLoaderInterface<Plane> {
 
     public List<Plane> load(String filePath) throws Exception {
 

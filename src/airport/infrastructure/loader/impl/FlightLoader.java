@@ -8,15 +8,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import airport.infrastructure.loader.interfaces.FligthLoaderInterface;
+import airport.infrastructure.loader.interfaces.DataLoaderInterface;
 import airport.model.Flight;
 import airport.model.Location;
 import airport.model.Plane;
 
-public class FlightLoader implements FligthLoaderInterface<Flight, Plane, Location> {
+public class FlightLoader implements DataLoaderInterface<Flight> {
+
+    private final List<Plane> planes;
+    private final List<Location> locations;
+
+    public FlightLoader(List<Plane> planes, List<Location> locations) {
+        this.planes = planes;
+        this.locations = locations;
+    }
 
     @Override
-    public List<Flight> load(String filePath, List<Plane> planes, List<Location> locations) throws Exception {
+    public List<Flight> load(String filePath) throws Exception {
         List<Flight> flights = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             StringBuilder json = new StringBuilder();
